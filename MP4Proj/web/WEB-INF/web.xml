@@ -21,7 +21,7 @@
     
     <servlet>
         <servlet-name>LoginServlet</servlet-name>
-        <servlet-class>com.yourgroup.servlet.LoginServlet</servlet-class>
+        <servlet-class>controllers.LoginServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>LoginServlet</servlet-name>
@@ -46,4 +46,4 @@
         <url-pattern>/GradeServlet</url-pattern>
     </servlet-mapping>
     
-    </web-app>
+</web-app>
