@@ -14,12 +14,10 @@ public class GradeServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // 1. Retrieve raw arrays from the HTML form
         String[] subjects = request.getParameterValues("subject[]");
         String[] units = request.getParameterValues("units[]");
         String[] grades = request.getParameterValues("grade[]");
 
-        // 2. Process data into a List of objects
         List<Grade> gradeList = new ArrayList<>();
         
         if (subjects != null) {
@@ -29,21 +27,16 @@ public class GradeServlet extends HttpServlet {
                     double sUnits = Double.parseDouble(units[i]);
                     double sGrade = Double.parseDouble(grades[i]);
                     
-                    // Add to list
                     gradeList.add(new Grade(sName, sUnits, sGrade));
                 } catch (NumberFormatException e) {
-                    // Skip invalid rows
                     continue;
                 }
             }
         }
 
-        // 3. Save to Global Application Scope (This makes it persist!)
-        // "gradesDB" will be the key we look for in the JSP
+        // Save to Global Application Scope
         getServletContext().setAttribute("gradesDB", gradeList);
 
-        // 4. Redirect back to portal (Professor view)
-        // Adding a success flag to show an alert
         response.sendRedirect("portal.jsp?role=professor&status=posted");
     }
 }

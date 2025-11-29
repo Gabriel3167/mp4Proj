@@ -6,7 +6,6 @@
 <%@ page import="java.text.SimpleDateFormat" %>
 
 <%
-    // Simulating the functionality of DateTimeListener.java to get the current date and time.
     SimpleDateFormat formatter = new SimpleDateFormat("EEEE, MMMM dd, yyyy, hh:mm:ss a z");
     String currentDateTime = formatter.format(new Date());
 %>

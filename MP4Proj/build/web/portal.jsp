@@ -2,23 +2,16 @@
 <%@page import="java.util.List" %>
 <%@page import="controllers.Grade" %>
 
-<%-- 
-    SECURITY CHECK: BACK BUTTON PROTECTION 
-    This block must be at the very top to run before any HTML is sent.
---%>
 <%
-    // 1. CLEAR BROWSER CACHE
-    // This forces the browser to reload the page from the server every time 
-    // the user visits it (including using Back/Forward buttons).
-    response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1
-    response.setHeader("Pragma", "no-cache"); // HTTP 1.0
-    response.setDateHeader("Expires", 0); // Proxies
+    // Prevent caching
+    response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    response.setHeader("Pragma", "no-cache");
+    response.setDateHeader("Expires", 0);
 
-    // 2. SERVER-SIDE SESSION VALIDATION
-    // Even if the browser reloads, we must check if the session is still valid.
+    // Session validation
     if (session.getAttribute("isLoggedIn") == null) {
         response.sendRedirect("login.jsp");
-        return; // Stop processing the rest of the page
+        return;
     }
 %>
 
@@ -167,8 +160,6 @@ Keep up the great work, Thomasian!</p>
     </section>
 
     <script>
-        // --- 1. DATA MANAGEMENT ---
-
         const PRESETS = {
             '2CSA': [
                 { name: 'ELE SMD (Social Media Dynamics)', units: 3 },
@@ -197,7 +188,8 @@ Keep up the great work, Thomasian!</p>
                 { name: 'LIWORIZ (Life & Works of Rizal)', units: 3 }
             ]
         };
-        // Server Data Injection
+
+        // Inject data from server
         let db = {
             grades: [
             <% 
@@ -216,14 +208,12 @@ Keep up the great work, Thomasian!</p>
             %>
             ]
         };
-        // Success Alert Logic
+
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('status') === 'posted') {
             alert("Grades successfully published to the Server!");
             window.history.replaceState(null, null, window.location.pathname + "?role=professor");
         }
-        
-        // --- 2. HELPER FUNCTIONS ---
         
         function updateHeaderDisplay(role) {
             const display = document.getElementById('currentUserDisplay');
@@ -262,7 +252,7 @@ Keep up the great work, Thomasian!</p>
             window.location.href = 'LogoutServlet';
         }
 
-        // --- 3. PROFESSOR MODULE (UPDATED) ---
+        // Professor Module
 
         function loadPresetSubjects() {
             const section = document.getElementById('yearLevelSelect').value;
@@ -270,7 +260,6 @@ Keep up the great work, Thomasian!</p>
 
             tbody.innerHTML = '';
 
-            // Priority 1: User selected a specific section -> Load Presets
             if (section && PRESETS[section]) {
                 const subjects = PRESETS[section];
                 subjects.forEach(sub => {
@@ -279,13 +268,11 @@ Keep up the great work, Thomasian!</p>
                 return;
             }
 
-            // Priority 2: No section selected, but DB has data -> Load DB Data
             if (db.grades.length > 0) {
                 renderProfTableFromDB();
                 return;
             }
 
-            // Priority 3: Default empty row
             addEmptySubjectRow();
         }
 
@@ -322,7 +309,7 @@ Keep up the great work, Thomasian!</p>
             tbody.appendChild(tr);
         }
 
-        // --- 4. STUDENT MODULE ---
+        // Student Module
 
         function renderStudentGrades() {
             const tbody = document.getElementById('studentGradeTable');
@@ -431,21 +418,15 @@ Keep up the great work, Thomasian!</p>
             }
         }
         
-        // --- INITIALIZATION ---
+        // Init
         window.onload = function() {
-            // Get Server Side Role (Validated via session check at top)
             const sessionRole = "<%= session.getAttribute("userType") %>";
             
-            // Note: URL params are purely for UI state in this implementation
-            const urlParams = new URLSearchParams(window.location.search);
-            const urlRole = urlParams.get('role');
-
             if (sessionRole === 'instructor') {
                 loginAs('professor');
             } else if (sessionRole === 'student') {
                 loginAs('student');
             } else {
-                // If we reach here, the session check at the top likely failed or redirected
                 console.log("No active session found.");
             }
         };

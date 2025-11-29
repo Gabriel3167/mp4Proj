@@ -11,7 +11,6 @@ public class Grade {
         this.grade = grade;
     }
 
-    // Getters are required for JSP to read the data later
     public String getName() { return name; }
     public double getUnits() { return units; }
     public double getGrade() { return grade; }
