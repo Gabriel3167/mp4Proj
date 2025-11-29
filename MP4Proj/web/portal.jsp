@@ -1,9 +1,29 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="java.util.List" %>
 <%@page import="controllers.Grade" %>
+
+<%-- 
+    SECURITY CHECK: BACK BUTTON PROTECTION 
+    This block must be at the very top to run before any HTML is sent.
+--%>
+<%
+    // 1. CLEAR BROWSER CACHE
+    // This forces the browser to reload the page from the server every time 
+    // the user visits it (including using Back/Forward buttons).
+    response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1
+    response.setHeader("Pragma", "no-cache"); // HTTP 1.0
+    response.setDateHeader("Expires", 0); // Proxies
+
+    // 2. SERVER-SIDE SESSION VALIDATION
+    // Even if the browser reloads, we must check if the session is still valid.
+    if (session.getAttribute("isLoggedIn") == null) {
+        response.sendRedirect("login.jsp");
+        return; // Stop processing the rest of the page
+    }
+%>
+
 <%@include file="header.jsp" %>
 
-    <!-- PROFESSOR SECTION -->
     <section id="professorSection" class="fade-in hidden">
         <div class="flex justify-between items-end mb-6 border-b border-gray-200 pb-4">
             <div>
@@ -60,7 +80,6 @@
         </div>
     </section>
 
-    <!-- STUDENT SECTION -->
     <section id="studentSection" class="hidden fade-in">
         <div class="flex justify-between items-end mb-6 border-b border-gray-200 pb-4">
             <div>
@@ -109,7 +128,6 @@
             </div>
 
             <div class="lg:col-span-1 space-y-6">
-                <!-- Intervention Card -->
                 <div id="interventionCard" class="hidden bg-white rounded-lg shadow-lg border-t-4 border-red-500 p-6 relative overflow-hidden">
                     <div class="absolute top-0 right-0 -mt-2 -mr-2 text-red-50 opacity-20">
                          <i class="fas fa-exclamation-triangle fa-5x"></i>
@@ -128,7 +146,7 @@
                     <div class="space-y-3">
                         <p class="text-xs font-bold text-gray-400 uppercase">Recommended Action</p>
                         <p id="recommendationText" class="text-sm text-gray-700 leading-relaxed">
-                            Focus on core concepts.
+                             Focus on core concepts.
                         </p>
                         <a id="externalLink" href="#" target="_blank" class="block w-full bg-blue-600 hover:bg-blue-700 text-white text-center py-2 rounded text-sm font-medium transition flex items-center justify-center gap-2">
                             <i class="fas fa-external-link-alt"></i> Access Learning Material
@@ -136,13 +154,13 @@
                     </div>
                 </div>
 
-                <!-- Good Standing Card -->
                 <div id="goodStandingCard" class="hidden bg-white rounded-lg shadow border-t-4 border-green-500 p-6 text-center">
                     <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <i class="fas fa-check text-green-600 text-2xl"></i>
                     </div>
                     <h4 class="text-green-700 font-bold text-lg">Good Standing</h4>
-                    <p class="text-sm text-gray-500 mt-2">You have no failing marks or critical low grades. Keep up the great work, Thomasian!</p>
+                    <p class="text-sm text-gray-500 mt-2">You have no failing marks or critical low grades.
+Keep up the great work, Thomasian!</p>
                 </div>
             </div>
         </div>
@@ -179,7 +197,6 @@
                 { name: 'LIWORIZ (Life & Works of Rizal)', units: 3 }
             ]
         };
-
         // Server Data Injection
         let db = {
             grades: [
@@ -199,7 +216,6 @@
             %>
             ]
         };
-        
         // Success Alert Logic
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('status') === 'posted') {
@@ -297,12 +313,12 @@
                     '<input type="number" name="units[]" value="' + units + '" class="w-full border border-gray-300 rounded p-2 text-center text-sm outline-none" placeholder="3" required>' +
                 '</td>' +
                 '<td class="p-2">' +
-                    '<input type="number" name="grade[]" value="' + grade + '" step="0.25" min="1.0" max="5.0" class="w-full border border-gray-300 rounded p-2 text-center text-sm font-bold text-ustBlack focus:ring-2 focus:ring-ustGold outline-none" placeholder="1.00">' +
+                    '<input type="number" name="grade[]" value="' 
+                    + grade + '" step="0.25" min="1.0" max="5.0" class="w-full border border-gray-300 rounded p-2 text-center text-sm font-bold text-ustBlack focus:ring-2 focus:ring-ustGold outline-none" placeholder="1.00">' +
                 '</td>' +
                 '<td class="p-2 text-center">' +
                     '<button type="button" onclick="this.closest(\'tr\').remove()" class="text-gray-400 hover:text-red-500"><i class="fas fa-times"></i></button>' +
                 '</td>';
-            
             tbody.appendChild(tr);
         }
 
@@ -349,13 +365,11 @@
                 
                 let gradeColorClass = (item.grade > 3.0) ? 'text-red-600' : 'text-ustBlack';
 
-                // Fixed with string concatenation
                 row.innerHTML = 
                     '<td class="py-3 px-6 font-medium text-gray-800">' + item.name + '</td>' +
                     '<td class="py-3 px-6 text-center text-gray-500">' + item.units + '</td>' +
                     '<td class="py-3 px-6 text-center font-bold ' + gradeColorClass + '">' + gradeDisplay + '</td>' +
                     '<td class="py-3 px-6 text-center">' + statusHtml + '</td>';
-                
                 tbody.appendChild(row);
             });
 
@@ -399,7 +413,6 @@
             const lowerName = subjectName.toLowerCase();
             const recText = document.getElementById('recommendationText');
             const link = document.getElementById('externalLink');
-
             if (lowerName.includes('calculus') || lowerName.includes('math')) {
                 recText.textContent = "Mathematical foundations are tricky. Review limits and derivatives.";
                 link.href = "https://www.coursera.org/learn/calculus1";
@@ -420,15 +433,19 @@
         
         // --- INITIALIZATION ---
         window.onload = function() {
+            // Get Server Side Role (Validated via session check at top)
             const sessionRole = "<%= session.getAttribute("userType") %>";
+            
+            // Note: URL params are purely for UI state in this implementation
             const urlParams = new URLSearchParams(window.location.search);
             const urlRole = urlParams.get('role');
 
-            if (sessionRole === 'instructor' || urlRole === 'professor') {
+            if (sessionRole === 'instructor') {
                 loginAs('professor');
-            } else if (sessionRole === 'student' || urlRole === 'student') {
+            } else if (sessionRole === 'student') {
                 loginAs('student');
             } else {
+                // If we reach here, the session check at the top likely failed or redirected
                 console.log("No active session found.");
             }
         };
