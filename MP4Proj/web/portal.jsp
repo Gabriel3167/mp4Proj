@@ -184,7 +184,7 @@
         function updateHeaderDisplay(role) {
             const display = document.getElementById('currentUserDisplay');
             if (role === 'professor') {
-                display.innerHTML = '<span class="font-bold text-ustGold"><i class="fas fa-user-tie"></i> Prof. Admin</span>';
+                display.innerHTML = '<span class="font-bold text-ustGold"><i class="fas fa-user-tie"></i> Logged In</span>';
             } else if (role === 'student') {
                 display.innerHTML = '<span class="font-bold text-ustGold"><i class="fas fa-user"></i> Student View</span>';
             } else {
